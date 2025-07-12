@@ -78,25 +78,45 @@ const handleLogin = () => {
 }
 </script>
 
-<style>
+<style scoped>
 .login-container {
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100vh;
+  background-color: #f0f2f5;
 }
 
 .login-card {
   width: 450px;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
 }
 
 .card-header {
   text-align: center;
-  font-size: 20px;
+  font-size: 24px;
   font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.el-form-item {
+  margin-bottom: 25px;
 }
 
 .el-button {
   width: 100%;
+}
+
+@media (max-width: 768px) {
+  .login-card {
+    width: 90%;
+    padding: 15px;
+  }
+
+  .card-header {
+    font-size: 20px;
+  }
 }
 </style>
