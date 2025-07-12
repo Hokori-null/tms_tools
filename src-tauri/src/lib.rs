@@ -222,9 +222,9 @@ async fn get_workorders(range: String) -> Result<WorkOrderResponse, String> {
 
 
 #[tauri::command]
-async fn create_ticket_command(n2p: String, massage_q: String, wx: String) -> Result<String, String> {
+async fn create_ticket_command(n2p: String, massage_q: String, wx: Option<String>, mobile: Option<String>) -> Result<String, String> {
     let cookie = COOKIE_STORAGE.lock().unwrap().clone().ok_or("未找到登录Cookie")?;
-    tms_service::create_ticket(&cookie, &n2p, &massage_q, &wx)
+    tms_service::create_ticket(&cookie, &n2p, &massage_q, wx.as_deref(), mobile.as_deref())
         .await
         .map_err(|e| e.to_string())
 }

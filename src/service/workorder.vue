@@ -170,13 +170,20 @@ async function createWorkOrder() {
   log.value = '开始创建工单...\n';
   try {
     const massageQ = `${form.messageQ}${form.gh}`;
-    log.value += `调用 create_ticket...\n参数: n2p=${form.n2nip}, massageQ=${massageQ}, wx=${form.contact}\n`;
-
-    const code = await invoke('create_ticket_command', {
+    const ticketPayload = {
       n2p: form.n2nip,
       massageQ: massageQ,
-      wx: form.contact,
-    });
+    };
+
+    if (form.contact_way === 'wx') {
+      ticketPayload.wx = form.contact;
+      log.value += `调用 create_ticket...\n参数: n2p=${form.n2nip}, massageQ=${massageQ}, wx=${form.contact}\n`;
+    } else if (form.contact_way === 'mobile') {
+      ticketPayload.mobile = form.contact;
+      log.value += `调用 create_ticket...\n参数: n2p=${form.n2nip}, massageQ=${massageQ}, mobile=${form.contact}\n`;
+    }
+
+    const code = await invoke('create_ticket_command', ticketPayload);
 
     log.value += `工单创建请求成功，返回代码: ${code}\n`;
     log.value += '正在将工单写入数据库...\n';

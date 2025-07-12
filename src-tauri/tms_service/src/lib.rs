@@ -12,8 +12,12 @@ pub fn add(left: u64, right: u64) -> u64 {
     left + right
 }
 
-pub async fn create_ticket(cookie: &str, n2p: &str, massageQ: &str, wx: &str) -> Result<String, reqwest::Error> {
-    println!("cookie={},n2n={},问题={}, 微信={}", cookie, n2p, massageQ, wx);
+pub async fn create_ticket(cookie: &str, n2p: &str, massageQ: &str, wx: Option<&str>, mobile: Option<&str>) -> Result<String, reqwest::Error> {
+    if let Some(wx_val) = wx {
+        println!("cookie={},n2n={},问题={}, 微信={}", cookie, n2p, massageQ, wx_val);
+    } else if let Some(mobile_val) = mobile {
+        println!("cookie={},n2n={},问题={}, 手机={}", cookie, n2p, massageQ, mobile_val);
+    }
 
     // 1. Create a cookie jar and a single client for all requests
     let jar = Arc::new(Jar::default());
@@ -66,18 +70,24 @@ pub async fn create_ticket(cookie: &str, n2p: &str, massageQ: &str, wx: &str) ->
     // 7. Now the jar should contain all necessary cookies.
     // We can proceed to create the work order.
     
-    let form_data = &[
+    let mut form_data = vec![
         ("type", "99"),
         ("describe", massageQ),
         ("input_file[]", ""),
-        ("contact_way", "wx"),
-        ("contact", wx),
         ("visit_way", "1"),
     ];
 
+    if let Some(wx_val) = wx {
+        form_data.push(("contact_way", "wx"));
+        form_data.push(("contact", wx_val));
+    } else if let Some(mobile_val) = mobile {
+        form_data.push(("contact_way", "mobile"));
+        form_data.push(("contact", mobile_val));
+    }
+
     let post_url = "https://c.baobaot.com/cinema/workorder/ajax_create";
 
-    let res = client.post(post_url).form(form_data).send().await?;
+    let res = client.post(post_url).form(&form_data).send().await?;
     let response_bytes = res.bytes().await?;
     let response_body = String::from_utf8_lossy(&response_bytes).to_string();
     
