@@ -182,12 +182,12 @@ async fn get_workorders(range: String) -> Result<WorkOrderResponse, String> {
 
     let query_string = if range == "month" {
         format!(
-            "SELECT code, n2n, q, a, isfeedback, isclose FROM \"{}\" WHERE date_trunc('month', time) = date_trunc('month', current_date) ORDER BY time DESC",
+            "SELECT code, n2n, q, a, isfeedback, isclose FROM \"{}\" WHERE date_trunc('month', time AT TIME ZONE 'Asia/Shanghai') = date_trunc('month', NOW() AT TIME ZONE 'Asia/Shanghai') ORDER BY time DESC",
             username
         )
     } else { // Default to "today"
         format!(
-            "SELECT code, n2n, q, a, isfeedback, isclose FROM \"{}\" WHERE time >= current_date ORDER BY time DESC",
+            "SELECT code, n2n, q, a, isfeedback, isclose FROM \"{}\" WHERE (time AT TIME ZONE 'Asia/Shanghai')::date = (NOW() AT TIME ZONE 'Asia/Shanghai')::date ORDER BY time DESC",
             username
         )
     };
@@ -306,7 +306,7 @@ async fn feedback_today_workorders(messagea: String) -> Result<String, String> {
     });
 
     let query_today_unfeedbacked = format!(
-        "SELECT code FROM \"{}\" WHERE time >= current_date AND isfeedback = 0",
+        "SELECT code FROM \"{}\" WHERE (time AT TIME ZONE 'Asia/Shanghai')::date = (NOW() AT TIME ZONE 'Asia/Shanghai')::date AND isfeedback = 0",
         username
     );
 
@@ -434,7 +434,7 @@ async fn close_today_workorders() -> Result<String, String> {
     });
 
     let query_today_unclosed = format!(
-        "SELECT code FROM \"{}\" WHERE time >= current_date AND isclose = 0",
+        "SELECT code FROM \"{}\" WHERE (time AT TIME ZONE 'Asia/Shanghai')::date = (NOW() AT TIME ZONE 'Asia/Shanghai')::date AND isclose = 0",
         username
     );
 
@@ -513,7 +513,7 @@ async fn feedback_and_close_today_workorders(messagea: String) -> Result<String,
     });
 
     let query_today = format!(
-        "SELECT code, isfeedback, isclose FROM \"{}\" WHERE time >= current_date",
+        "SELECT code, isfeedback, isclose FROM \"{}\" WHERE (time AT TIME ZONE 'Asia/Shanghai')::date = (NOW() AT TIME ZONE 'Asia/Shanghai')::date",
         username
     );
 
