@@ -11,6 +11,7 @@
         :model="loginForm"
         :rules="loginRules"
         label-width="80px"
+        @keyup.enter="handleLogin"
       >
         <el-form-item label="用户名" prop="username">
           <el-input
