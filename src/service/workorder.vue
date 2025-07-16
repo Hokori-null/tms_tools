@@ -27,14 +27,12 @@
               <el-input v-model="form.contact" :disabled="isCreating" />
             </el-form-item>
             <el-form-item label="工号">
-              <el-input v-model="form.gh" disabled />
+              <el-input v-model="form.gh" :disabled="isCreating" />
             </el-form-item>
             <el-form-item label="工单ID">
               <el-input v-model="form.gdID" :disabled="isCreating" />
             </el-form-item>
-            <el-form-item label="反馈">
-              <el-input v-model="form.messageA" type="textarea" :rows="3" :disabled="isCreating" />
-            </el-form-item>
+
             <el-form-item>
               <div class="form-buttons">
                 <el-button type="primary" @click="createWorkOrder" :disabled="isCreating">创建工单</el-button>
@@ -196,6 +194,11 @@ async function createWorkOrder() {
     });
 
     log.value += '工单成功写入数据库。\n';
+    form.gdID = code;
+    form.n2nip = '';
+    form.messageQ = '';
+    form.contact = '';
+    form.messageA = '';
     await fetchWorkOrders();
   } catch (error) {
     log.value += `创建工单过程中出错: ${error}\n`;
@@ -228,13 +231,16 @@ async function feedbackSingleWorkOrder() {
     log.value += '请输入要反馈的工单ID\n';
     return;
   }
+  isCreating.value = true;
   log.value += `开始反馈工单 ${form.gdID}...\n`;
   try {
-    await invoke('feedback_workorder', { gdid: form.gdID, messagea: form.messageA });
+    await invoke('feedback_workorder', { gdid: form.gdID });
     log.value += `工单 ${form.gdID} 反馈成功。\n`;
     await fetchWorkOrders();
   } catch (error) {
     log.value += `反馈工单 ${form.gdID} 出错: ${error}\n`;
+  } finally {
+    isCreating.value = false;
   }
 }
 
@@ -243,6 +249,7 @@ async function closeSingleWorkOrder() {
     log.value += '请输入要关闭的工单ID\n';
     return;
   }
+  isCreating.value = true;
   log.value += `开始关闭工单 ${form.gdID}...\n`;
   try {
     await invoke('close_workorder', { gdid: form.gdID });
@@ -250,6 +257,8 @@ async function closeSingleWorkOrder() {
     await fetchWorkOrders();
   } catch (error) {
     log.value += `关闭工单出错: ${error}\n`;
+  } finally {
+    isCreating.value = false;
   }
 }
 
@@ -258,19 +267,18 @@ async function feedbackSelected() {
     log.value += '请先选择要反馈的工单。\n';
     return;
   }
-  if (!form.messageA) {
-    log.value += '请在左侧表单填写反馈内容。\n';
-    return;
-  }
+  isCreating.value = true;
   log.value += `开始批量反馈 ${selectedOrders.value.size} 个工单...\n`;
   try {
     const gdids = Array.from(selectedOrders.value);
-    const result = await invoke('feedback_selected_workorders', { gdids, messagea: form.messageA });
+    const result = await invoke('feedback_selected_workorders', { gdids });
     log.value += `${result}\n`;
     await fetchWorkOrders();
     selectedOrders.value.clear();
   } catch (error) {
     log.value += `批量反馈出错: ${error}\n`;
+  } finally {
+    isCreating.value = false;
   }
 }
 
@@ -279,6 +287,7 @@ async function closeSelected() {
     log.value += '请先选择要关闭的工单。\n';
     return;
   }
+  isCreating.value = true;
   log.value += `开始批量关闭 ${selectedOrders.value.size} 个工单...\n`;
   try {
     const gdids = Array.from(selectedOrders.value);
@@ -288,25 +297,27 @@ async function closeSelected() {
     selectedOrders.value.clear();
   } catch (error) {
     log.value += `批量关闭出错: ${error}\n`;
+  } finally {
+    isCreating.value = false;
   }
 }
 
 async function feedbackTodaysOrders() {
-    if (!form.messageA) {
-        log.value += '请在左侧表单填写反馈内容。\n';
-        return;
-    }
+    isCreating.value = true;
     log.value += `开始反馈今日所有工单...\n`;
     try {
-        const result = await invoke('feedback_today_workorders', { messagea: form.messageA });
+        const result = await invoke('feedback_today_workorders');
         log.value += `${result}\n`;
         await fetchWorkOrders();
     } catch (error) {
         log.value += `反馈今日工单出错: ${error}\n`;
+    } finally {
+        isCreating.value = false;
     }
 }
 
 async function closeTodaysOrders() {
+    isCreating.value = true;
     log.value += `开始关闭今日所有工单...\n`;
     try {
         const result = await invoke('close_today_workorders');
@@ -314,21 +325,22 @@ async function closeTodaysOrders() {
         await fetchWorkOrders();
     } catch (error) {
         log.value += `关闭今日工单出错: ${error}\n`;
+    } finally {
+        isCreating.value = false;
     }
 }
 
 async function feedbackAndCloseTodaysOrders() {
-    if (!form.messageA) {
-        log.value += '请在左侧表单填写反馈内容。\n';
-        return;
-    }
+    isCreating.value = true;
     log.value += `开始反馈并关闭今日所有工单...\n`;
     try {
-        const result = await invoke('feedback_and_close_today_workorders', { messagea: form.messageA });
+        const result = await invoke('feedback_and_close_today_workorders');
         log.value += `${result}\n`;
         await fetchWorkOrders();
     } catch (error) {
         log.value += `反馈并关闭今日工单出错: ${error}\n`;
+    } finally {
+        isCreating.value = false;
     }
 }
 

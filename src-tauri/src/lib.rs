@@ -257,14 +257,7 @@ async fn insert_workorder(code: String, n2n: String, q: String, a: String) -> Re
 }
 
 #[tauri::command]
-async fn feedback_workorder(gdid: String, messagea: String) -> Result<(), String> {
-    // Step 1: Call the remote feedback service
-    let cookie = COOKIE_STORAGE.lock().unwrap().clone().ok_or("未找到登录Cookie")?;
-    tms_service::feedback(&cookie, &messagea, &gdid)
-        .await
-        .map_err(|e| format!("远程反馈失败: {}", e))?;
-
-    // Step 2: If remote feedback is successful, update the local database
+async fn feedback_workorder(gdid: String) -> Result<(), String> {
     let username = USERNAME_STORAGE.lock().unwrap().clone().ok_or("用户未登录".to_string())?;
     let db_url = "postgres://tmstools:521707@honulla.com:5432/tmstools";
     let (mut client, connection) = tokio_postgres::connect(db_url, NoTls)
@@ -277,13 +270,25 @@ async fn feedback_workorder(gdid: String, messagea: String) -> Result<(), String
         }
     });
 
+    // 从数据库获取反馈信息
+    let row = client.query_one(&format!("SELECT a FROM \"{}\" WHERE code = $1", username), &[&gdid])
+        .await
+        .map_err(|e| format!("查询反馈信息失败: {}", e))?;
+    let messagea: String = row.get(0);
+
+    // 调用远程反馈服务
+    let cookie = COOKIE_STORAGE.lock().unwrap().clone().ok_or("未找到登录Cookie")?;
+    tms_service::feedback(&cookie, &messagea, &gdid)
+        .await
+        .map_err(|e| format!("远程反馈失败: {}", e))?;
+
+    // 更新数据库
     let query = format!(
-        "UPDATE \"{}\" SET a = $1, isfeedback = 1 WHERE code = $2",
+        "UPDATE \"{}\" SET isfeedback = 1 WHERE code = $1",
         username
     );
-
     client
-        .execute(&query, &[&messagea, &gdid])
+        .execute(&query, &[&gdid])
         .await
         .map_err(|e| format!("更新数据库失败: {}", e))?;
 
@@ -291,7 +296,7 @@ async fn feedback_workorder(gdid: String, messagea: String) -> Result<(), String
 }
 
 #[tauri::command]
-async fn feedback_today_workorders(messagea: String) -> Result<String, String> {
+async fn feedback_today_workorders() -> Result<String, String> {
     let username = USERNAME_STORAGE.lock().unwrap().clone().ok_or("用户未登录".to_string())?;
     let cookie = COOKIE_STORAGE.lock().unwrap().clone().ok_or("未找到登录Cookie")?;
     let db_url = "postgres://tmstools:521707@honulla.com:5432/tmstools";
@@ -306,7 +311,7 @@ async fn feedback_today_workorders(messagea: String) -> Result<String, String> {
     });
 
     let query_today_unfeedbacked = format!(
-        "SELECT code FROM \"{}\" WHERE (time AT TIME ZONE 'Asia/Shanghai')::date = (NOW() AT TIME ZONE 'Asia/Shanghai')::date AND isfeedback = 0",
+        "SELECT code, a FROM \"{}\" WHERE time >= date_trunc('day', now() AT TIME ZONE 'Asia/Shanghai') AND time < date_trunc('day', now() AT TIME ZONE 'Asia/Shanghai') + interval '1 day' AND isfeedback = 0",
         username
     );
 
@@ -321,15 +326,16 @@ async fn feedback_today_workorders(messagea: String) -> Result<String, String> {
     for row in rows {
         sleep(Duration::from_millis(200)).await;
         let gdid: String = row.get(0);
+        let messagea: String = row.get(1);
 
         if !messagea.is_empty() {
             match tms_service::feedback(&cookie, &messagea, &gdid).await {
                 Ok(_) => {
                     let update_query = format!(
-                        "UPDATE \"{}\" SET isfeedback = 1, a = $1 WHERE code = $2",
+                        "UPDATE \"{}\" SET isfeedback = 1 WHERE code = $1",
                         username
                     );
-                    if client.execute(&update_query, &[&messagea, &gdid]).await.is_ok() {
+                    if client.execute(&update_query, &[&gdid]).await.is_ok() {
                         success_count += 1;
                     }
                 }
@@ -344,7 +350,7 @@ async fn feedback_today_workorders(messagea: String) -> Result<String, String> {
 }
 
 #[tauri::command]
-async fn feedback_selected_workorders(gdids: Vec<String>, messagea: String) -> Result<String, String> {
+async fn feedback_selected_workorders(gdids: Vec<String>) -> Result<String, String> {
     let username = USERNAME_STORAGE.lock().unwrap().clone().ok_or("用户未登录".to_string())?;
     let cookie = COOKIE_STORAGE.lock().unwrap().clone().ok_or("未找到登录Cookie")?;
     let db_url = "postgres://tmstools:521707@honulla.com:5432/tmstools";
@@ -363,14 +369,19 @@ async fn feedback_selected_workorders(gdids: Vec<String>, messagea: String) -> R
 
     for gdid in gdids {
         sleep(Duration::from_millis(200)).await;
+        let row = client.query_one(&format!("SELECT a FROM \"{}\" WHERE code = $1", username), &[&gdid])
+            .await
+            .map_err(|e| format!("查询反馈信息失败: {}", e))?;
+        let messagea: String = row.get(0);
+
         if !messagea.is_empty() {
             match tms_service::feedback(&cookie, &messagea, &gdid).await {
                 Ok(_) => {
                     let update_query = format!(
-                        "UPDATE \"{}\" SET isfeedback = 1, a = $1 WHERE code = $2",
+                        "UPDATE \"{}\" SET isfeedback = 1 WHERE code = $1",
                         username
                     );
-                    if client.execute(&update_query, &[&messagea, &gdid]).await.is_ok() {
+                    if client.execute(&update_query, &[&gdid]).await.is_ok() {
                         success_count += 1;
                     }
                 }
@@ -434,7 +445,7 @@ async fn close_today_workorders() -> Result<String, String> {
     });
 
     let query_today_unclosed = format!(
-        "SELECT code FROM \"{}\" WHERE (time AT TIME ZONE 'Asia/Shanghai')::date = (NOW() AT TIME ZONE 'Asia/Shanghai')::date AND isclose = 0",
+        "SELECT code FROM \"{}\" WHERE time >= date_trunc('day', now() AT TIME ZONE 'Asia/Shanghai') AND time < date_trunc('day', now() AT TIME ZONE 'Asia/Shanghai') + interval '1 day' AND isclose = 0",
         username
     );
 
@@ -498,7 +509,7 @@ async fn close_selected_workorders(gdids: Vec<String>) -> Result<String, String>
 }
 
 #[tauri::command]
-async fn feedback_and_close_today_workorders(messagea: String) -> Result<String, String> {
+async fn feedback_and_close_today_workorders() -> Result<String, String> {
     let username = USERNAME_STORAGE.lock().unwrap().clone().ok_or("用户未登录".to_string())?;
     let cookie = COOKIE_STORAGE.lock().unwrap().clone().ok_or("未找到登录Cookie")?;
     let db_url = "postgres://tmstools:521707@honulla.com:5432/tmstools";
@@ -512,15 +523,15 @@ async fn feedback_and_close_today_workorders(messagea: String) -> Result<String,
         }
     });
 
-    let query_today = format!(
-        "SELECT code, isfeedback, isclose FROM \"{}\" WHERE (time AT TIME ZONE 'Asia/Shanghai')::date = (NOW() AT TIME ZONE 'Asia/Shanghai')::date",
+    let query_today_unprocessed = format!(
+        "SELECT code, a FROM \"{}\" WHERE time >= date_trunc('day', now() AT TIME ZONE 'Asia/Shanghai') AND time < date_trunc('day', now() AT TIME ZONE 'Asia/Shanghai') + interval '1 day' AND (isfeedback = 0 OR isclose = 0)",
         username
     );
 
     let rows = client
-        .query(&query_today, &[])
+        .query(&query_today_unprocessed, &[])
         .await
-        .map_err(|e| format!("查询今日工单失败: {}", e))?;
+        .map_err(|e| format!("查询今日未处理工单失败: {}", e))?;
 
     let mut feedback_success_count = 0;
     let mut close_success_count = 0;
@@ -529,30 +540,31 @@ async fn feedback_and_close_today_workorders(messagea: String) -> Result<String,
     for row in rows {
         sleep(Duration::from_millis(200)).await;
         let gdid: String = row.get(0);
-        let isfeedback: i32 = row.get(1);
-        let isclose: i32 = row.get(2);
+        let messagea: Option<String> = row.get(1);
 
-        if isfeedback != 1 && !messagea.is_empty() {
-            if tms_service::feedback(&cookie, &messagea, &gdid).await.is_ok() {
-                let update_query = format!(
-                    "UPDATE \"{}\" SET isfeedback = 1, a = $1 WHERE code = $2",
-                    username
-                );
-                if client.execute(&update_query, &[&messagea, &gdid]).await.is_ok() {
-                    feedback_success_count += 1;
+        // Feedback
+        if let Some(msg) = messagea {
+            if !msg.is_empty() {
+                if tms_service::feedback(&cookie, &msg, &gdid).await.is_ok() {
+                    let update_feedback_query = format!(
+                        "UPDATE \"{}\" SET isfeedback = 1 WHERE code = $1",
+                        username
+                    );
+                    if client.execute(&update_feedback_query, &[&gdid]).await.is_ok() {
+                        feedback_success_count += 1;
+                    }
                 }
             }
         }
 
-        if isclose != 1 {
-            if tms_service::close(&cookie, &gdid).await.is_ok() {
-                let update_query = format!(
-                    "UPDATE \"{}\" SET isclose = 1 WHERE code = $1",
-                    username
-                );
-                if client.execute(&update_query, &[&gdid]).await.is_ok() {
-                    close_success_count += 1;
-                }
+        // Close
+        if tms_service::close(&cookie, &gdid).await.is_ok() {
+            let update_close_query = format!(
+                "UPDATE \"{}\" SET isclose = 1 WHERE code = $1",
+                username
+            );
+            if client.execute(&update_close_query, &[&gdid]).await.is_ok() {
+                close_success_count += 1;
             }
         }
     }
