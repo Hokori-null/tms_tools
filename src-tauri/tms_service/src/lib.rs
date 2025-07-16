@@ -40,8 +40,11 @@ pub async fn create_ticket(cookie: &str, n2p: &str, massageQ: &str, wx: Option<&
 
     println!("源码获取完成");
 
-    let system_prompt = "告诉我编辑按钮的链接，只要告诉我链接的url就可以，不要说其他的任何内容";
-    let edit_page_url = openai::ask_openai(&body, system_prompt).await?;
+    let edit_page_url = match html_scraper::find_edit_link(&body) {
+        Ok(Some(link)) => link,
+        Ok(None) => return Ok("没有找到编辑链接".to_string()),
+        Err(e) => return Ok(format!("查找编辑链接时出错: {}", e)),
+    };
     println!("平台id{}", edit_page_url);
 
     // 3. Visit the edit page to get its source
@@ -50,8 +53,11 @@ pub async fn create_ticket(cookie: &str, n2p: &str, massageQ: &str, wx: Option<&
     let body2 = String::from_utf8_lossy(&body2_bytes).to_string();
 
     // 4. Get the TMS config URL
-    let system_prompt2 = "告诉我TMS配置按钮的链接，只要告诉我链接的url就可以，不要说其他的任何内容";
-    let tms_config_url = openai::ask_openai(&body2, system_prompt2).await?;
+    let tms_config_url = match html_scraper::find_tms_config_link(&body2) {
+        Ok(Some(link)) => link,
+        Ok(None) => return Ok("没有找到TMS配置链接".to_string()),
+        Err(e) => return Ok(format!("查找TMS配置链接时出错: {}", e)),
+    };
     println!("tms配置链接{}", tms_config_url);
     
     // 5. Visit the TMS config URL to get the token
@@ -59,8 +65,11 @@ pub async fn create_ticket(cookie: &str, n2p: &str, massageQ: &str, wx: Option<&
     let body3_bytes = res3.bytes().await?;
     let body3 = String::from_utf8_lossy(&body3_bytes).to_string();
 
-    let system_prompt3 = "告诉我权限认证(token)的值，只要告诉我对应的值就行，不要说其他的任何内容";
-    let token = openai::ask_openai(&body3, system_prompt3).await?;
+    let token = match html_scraper::find_token(&body3) {
+        Ok(Some(t)) => t,
+        Ok(None) => return Ok("没有找到token".to_string()),
+        Err(e) => return Ok(format!("查找token时出错: {}", e)),
+    };
     println!("token={}", token);
 
     // 6. Visit the final URL to get the session cookies
