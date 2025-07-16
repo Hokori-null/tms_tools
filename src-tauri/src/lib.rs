@@ -187,7 +187,7 @@ async fn get_workorders(range: String) -> Result<WorkOrderResponse, String> {
         )
     } else { // Default to "today"
         format!(
-            "SELECT code, n2n, q, a, isfeedback, isclose FROM \"{}\" WHERE (time AT TIME ZONE 'Asia/Shanghai')::date = (NOW() AT TIME ZONE 'Asia/Shanghai')::date ORDER BY time DESC",
+            "SELECT code, n2n, q, a, isfeedback, isclose FROM \"{}\" WHERE time >= date_trunc('day', now() AT TIME ZONE 'Asia/Shanghai') AND time < date_trunc('day', now() AT TIME ZONE 'Asia/Shanghai') + interval '1 day' ORDER BY time DESC",
             username
         )
     };
