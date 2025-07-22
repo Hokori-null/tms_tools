@@ -17,6 +17,9 @@
             <el-form-item label="问题描述">
               <el-input v-model="form.messageQ" type="textarea" :rows="3" :disabled="isCreating" />
             </el-form-item>
+            <el-form-item label="处理结果">
+              <el-input v-model="form.messageA" type="textarea" :rows="3" :disabled="isCreating" />
+            </el-form-item>
             <el-form-item label="联系方式">
               <el-radio-group v-model="form.contact_way" :disabled="isCreating">
                 <el-radio label="wx">微信</el-radio>
@@ -234,7 +237,7 @@ async function feedbackSingleWorkOrder() {
   isCreating.value = true;
   log.value += `开始反馈工单 ${form.gdID}...\n`;
   try {
-    await invoke('feedback_workorder', { gdid: form.gdID });
+    await invoke('feedback_workorder', { gdid: form.gdID, messagea: form.messageA });
     log.value += `工单 ${form.gdID} 反馈成功。\n`;
     await fetchWorkOrders();
   } catch (error) {
