@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
-const API_KEY: &str = "AIzaSyDBienhzI5Y3o9N4foi7QQRarTtuOIsVJg"; // 请替换为您的OpenAI API密钥
-const API_URL: &str = "https://melodic-bonbon-359e24.netlify.app/edge/v1/chat/completions";
+const API_KEY: &str = "sk-2tosmoMAa45r9HrovQ24oC4nmMfeSI4a8vq8gyElC2ZRRrqv"; // 请替换为您的OpenAI API密钥
+const API_URL: &str = "https://api.llvho.com/v1/chat/completions";
 
 // --- Structs for Serialization (Request) ---
 
