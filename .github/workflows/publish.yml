@@ -45,6 +45,16 @@ jobs:
           node-version: lts/*
           cache: 'pnpm'
 
+      # 设置 Python 环境以解决 sharp 依赖问题
+      - name: setup python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'  # 使用 3.11 版本以确保 distutils 可用
+
+      # 安装 setuptools 以提供 distutils
+      - name: install setuptools
+        run: pip install setuptools
+
       - name: install Rust stable
         uses: dtolnay/rust-toolchain@stable
         with:
