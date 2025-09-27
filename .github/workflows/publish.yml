@@ -32,6 +32,15 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
 
+      # 添加 macOS 依赖安装，包括 sharp 需要的构建工具
+      - name: install dependencies (macos only)
+        if: matrix.platform == 'macos-latest'
+        run: |
+          # 安装 sharp 需要的构建工具和库
+          brew install pkg-config cairo pango libpng jpeg giflib librsvg pixman
+          # 设置 pkg-config 路径
+          echo "PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/opt/homebrew/lib/pkgconfig" >> $GITHUB_ENV
+
       # 新增 pnpm/action-setup 来安装 pnpm
       - name: setup pnpm
         uses: pnpm/action-setup@v3
@@ -55,6 +64,13 @@ jobs:
       - name: install setuptools
         run: pip install setuptools
 
+      # 设置 sharp 构建环境变量
+      - name: setup sharp build environment
+        if: matrix.platform == 'macos-latest'
+        run: |
+          echo "SHARP_IGNORE_GLOBAL_LIBVIPS=1" >> $GITHUB_ENV
+          echo "npm_config_arch=${{ matrix.args == '--target aarch64-apple-darwin' && 'arm64' || 'x64' }}" >> $GITHUB_ENV
+
       - name: install Rust stable
         uses: dtolnay/rust-toolchain@stable
         with:
@@ -65,6 +81,15 @@ jobs:
         uses: swatinem/rust-cache@v2
         with:
           workspaces: './src-tauri -> target'
+
+      # 缓存 node_modules 以加速构建
+      - name: cache node_modules
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: ${{ matrix.platform }}-node-modules-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ matrix.platform }}-node-modules-
 
       # 修改依赖安装命令为 pnpm install
       - name: install frontend dependencies
