@@ -2615,16 +2615,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "openai"
-version = "0.1.0"
-dependencies = [
- "reqwest",
- "serde",
- "serde_json",
- "tokio",
-]
-
-[[package]]
 name = "openssl"
 version = "0.10.73"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4468,7 +4458,6 @@ name = "tms_service"
 version = "0.1.0"
 dependencies = [
  "html_scraper",
- "openai",
  "reqwest",
  "serde",
  "serde_json",

@@ -1,0 +1,11 @@
+/Users/hokori/code/rust/tms_tools/src-tauri/html_scraper/target/debug/deps/libstring_cache-e873790d99344744.rmeta: /Users/hokori/.cargo/registry/src/rsproxy.cn-e3de039b2554c837/string_cache-0.8.9/src/lib.rs /Users/hokori/.cargo/registry/src/rsproxy.cn-e3de039b2554c837/string_cache-0.8.9/src/atom.rs /Users/hokori/.cargo/registry/src/rsproxy.cn-e3de039b2554c837/string_cache-0.8.9/src/dynamic_set.rs /Users/hokori/.cargo/registry/src/rsproxy.cn-e3de039b2554c837/string_cache-0.8.9/src/static_sets.rs /Users/hokori/.cargo/registry/src/rsproxy.cn-e3de039b2554c837/string_cache-0.8.9/src/trivial_impls.rs
+
+/Users/hokori/code/rust/tms_tools/src-tauri/html_scraper/target/debug/deps/libstring_cache-e873790d99344744.rlib: /Users/hokori/.cargo/registry/src/rsproxy.cn-e3de039b2554c837/string_cache-0.8.9/src/lib.rs /Users/hokori/.cargo/registry/src/rsproxy.cn-e3de039b2554c837/string_cache-0.8.9/src/atom.rs /Users/hokori/.cargo/registry/src/rsproxy.cn-e3de039b2554c837/string_cache-0.8.9/src/dynamic_set.rs /Users/hokori/.cargo/registry/src/rsproxy.cn-e3de039b2554c837/string_cache-0.8.9/src/static_sets.rs /Users/hokori/.cargo/registry/src/rsproxy.cn-e3de039b2554c837/string_cache-0.8.9/src/trivial_impls.rs
+
+/Users/hokori/code/rust/tms_tools/src-tauri/html_scraper/target/debug/deps/string_cache-e873790d99344744.d: /Users/hokori/.cargo/registry/src/rsproxy.cn-e3de039b2554c837/string_cache-0.8.9/src/lib.rs /Users/hokori/.cargo/registry/src/rsproxy.cn-e3de039b2554c837/string_cache-0.8.9/src/atom.rs /Users/hokori/.cargo/registry/src/rsproxy.cn-e3de039b2554c837/string_cache-0.8.9/src/dynamic_set.rs /Users/hokori/.cargo/registry/src/rsproxy.cn-e3de039b2554c837/string_cache-0.8.9/src/static_sets.rs /Users/hokori/.cargo/registry/src/rsproxy.cn-e3de039b2554c837/string_cache-0.8.9/src/trivial_impls.rs
+
+/Users/hokori/.cargo/registry/src/rsproxy.cn-e3de039b2554c837/string_cache-0.8.9/src/lib.rs:
+/Users/hokori/.cargo/registry/src/rsproxy.cn-e3de039b2554c837/string_cache-0.8.9/src/atom.rs:
+/Users/hokori/.cargo/registry/src/rsproxy.cn-e3de039b2554c837/string_cache-0.8.9/src/dynamic_set.rs:
+/Users/hokori/.cargo/registry/src/rsproxy.cn-e3de039b2554c837/string_cache-0.8.9/src/static_sets.rs:
+/Users/hokori/.cargo/registry/src/rsproxy.cn-e3de039b2554c837/string_cache-0.8.9/src/trivial_impls.rs:

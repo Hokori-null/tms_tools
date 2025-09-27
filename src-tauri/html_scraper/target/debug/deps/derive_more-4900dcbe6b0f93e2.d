@@ -1,0 +1,10 @@
+/Users/hokori/code/rust/tms_tools/src-tauri/html_scraper/target/debug/deps/libderive_more-4900dcbe6b0f93e2.dylib: /Users/hokori/.cargo/registry/src/rsproxy.cn-e3de039b2554c837/derive_more-0.99.20/src/lib.rs /Users/hokori/.cargo/registry/src/rsproxy.cn-e3de039b2554c837/derive_more-0.99.20/src/syn_compat.rs /Users/hokori/.cargo/registry/src/rsproxy.cn-e3de039b2554c837/derive_more-0.99.20/src/utils.rs /Users/hokori/.cargo/registry/src/rsproxy.cn-e3de039b2554c837/derive_more-0.99.20/src/add_assign_like.rs /Users/hokori/.cargo/registry/src/rsproxy.cn-e3de039b2554c837/derive_more-0.99.20/src/add_helpers.rs /Users/hokori/.cargo/registry/src/rsproxy.cn-e3de039b2554c837/derive_more-0.99.20/src/add_like.rs
+
+/Users/hokori/code/rust/tms_tools/src-tauri/html_scraper/target/debug/deps/derive_more-4900dcbe6b0f93e2.d: /Users/hokori/.cargo/registry/src/rsproxy.cn-e3de039b2554c837/derive_more-0.99.20/src/lib.rs /Users/hokori/.cargo/registry/src/rsproxy.cn-e3de039b2554c837/derive_more-0.99.20/src/syn_compat.rs /Users/hokori/.cargo/registry/src/rsproxy.cn-e3de039b2554c837/derive_more-0.99.20/src/utils.rs /Users/hokori/.cargo/registry/src/rsproxy.cn-e3de039b2554c837/derive_more-0.99.20/src/add_assign_like.rs /Users/hokori/.cargo/registry/src/rsproxy.cn-e3de039b2554c837/derive_more-0.99.20/src/add_helpers.rs /Users/hokori/.cargo/registry/src/rsproxy.cn-e3de039b2554c837/derive_more-0.99.20/src/add_like.rs
+
+/Users/hokori/.cargo/registry/src/rsproxy.cn-e3de039b2554c837/derive_more-0.99.20/src/lib.rs:
+/Users/hokori/.cargo/registry/src/rsproxy.cn-e3de039b2554c837/derive_more-0.99.20/src/syn_compat.rs:
+/Users/hokori/.cargo/registry/src/rsproxy.cn-e3de039b2554c837/derive_more-0.99.20/src/utils.rs:
+/Users/hokori/.cargo/registry/src/rsproxy.cn-e3de039b2554c837/derive_more-0.99.20/src/add_assign_like.rs:
+/Users/hokori/.cargo/registry/src/rsproxy.cn-e3de039b2554c837/derive_more-0.99.20/src/add_helpers.rs:
+/Users/hokori/.cargo/registry/src/rsproxy.cn-e3de039b2554c837/derive_more-0.99.20/src/add_like.rs:

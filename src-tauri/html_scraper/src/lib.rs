@@ -61,6 +61,37 @@ pub fn find_token(html_body: &str) -> Result<Option<String>, ScrapeError> {
     Ok(None)
 }
 
+
+/// 解析HTML文本，查找并返回最新一个工单详情按钮链接中的ID。
+/// 由于网页将最新的工单放在最上面，我们只需要定位到表格的第一行即可。
+pub fn find_latest_work_order_id(html_body: &str) -> Result<Option<String>, ScrapeError> {
+    // CSS选择器，用于定位到表格主体(tbody)的第一个表格行(tr)内，class包含"btn-info"的链接(a)
+    let selector_str = "tbody tr:first-child a.btn-info";
+    let detail_link_selector = Selector::parse(selector_str)
+        .map_err(|e| ScrapeError::InvalidSelector(format!("'{selector_str}': {e}")))?;
+
+    let document = Html::parse_document(html_body);
+
+    // 查找第一个匹配的元素
+    if let Some(element) = document.select(&detail_link_selector).next() {
+        // 提取其 "href" 属性
+        if let Some(href) = element.value().attr("href") {
+            // 使用正则表达式从URL中提取 "id" 的值
+            // 正则表达式 r"id=(\d+)" 匹配 "id=" 后跟着的一串数字(\d+)，并捕获这串数字
+            let re = Regex::new(r"id=(\d+)")?;
+            if let Some(caps) = re.captures(href) {
+                // caps.get(1) 获取第一个捕获组的内容 (也就是\d+匹配到的部分)
+                if let Some(id_match) = caps.get(1) {
+                    return Ok(Some(id_match.as_str().to_string()));
+                }
+            }
+        }
+    }
+
+    Ok(None)
+}
+
+
 #[cfg(test)]
 mod tests {
     use super::*;

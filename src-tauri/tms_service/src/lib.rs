@@ -121,8 +121,12 @@ pub async fn create_ticket(cookie: &str, n2p: &str, massageQ: &str, wx: Option<&
     let workorder_bytes = workorder_res.bytes().await?;
     let workorder_html = String::from_utf8_lossy(&workorder_bytes).to_string();
 
-    let system_prompt_details = "找到最新的一个工单所对应的详情按钮的url地址中id的值，只要告诉我对应的值就可以，不要说其他任何内容";
-    let details_url = openai::ask_openai(&workorder_html, system_prompt_details).await?;
+    let details_url = match html_scraper::find_latest_work_order_id(&workorder_html) {
+        Ok(Some(id)) => format!("{}", id),
+        Ok(None) => return Ok("没有找到最新工单的详情链接".to_string()),
+        Err(e) => return Ok(format!("查找最新工单详情链接时出错: {}", e)),
+    };
+    println!("最新工单详情链接{}", details_url);
 
     Ok(details_url)
 }
@@ -186,6 +190,8 @@ pub async fn close(cookie: &str, gdID: &str) -> Result<String, reqwest::Error> {
 
     Ok(response_body)
 }
+
+
 
 #[cfg(test)]
 mod tests {
